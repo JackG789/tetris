@@ -29,7 +29,14 @@ namespace Tetris
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 500;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // frmTetris
             // 
@@ -39,6 +46,7 @@ namespace Tetris
             this.Name = "frmTetris";
             this.Text = "Tetris";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frmTetris_KeyDown);
             this.ResumeLayout(false);
 
         }
@@ -46,6 +54,7 @@ namespace Tetris
         #endregion
 
         private System.Windows.Forms.Button btnGrid;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
