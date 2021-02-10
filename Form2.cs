@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,7 +14,9 @@ namespace Tetris
     {
         private int xPos;
         private int yPos;
-       
+        private string currentShape;
+        private int rotation;
+        
         Button[,] btnGrid = new Button[10, 20];
 
         public FrmTetris()
@@ -26,10 +28,10 @@ namespace Tetris
         {
             DisplayGrid(btnGrid);
             xPos = 4;
-            yPos = 0;
+            yPos = 10; //changed to test shape rotation, should be 0
+            rotation = 0;
             lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
-            TBlock(btnGrid, xPos, yPos);
-            DropTimer.Enabled = true;
+            //DropTimer.Enabled = true;
         }
 
         private void DisplayGrid(Button[,] btnGrid)
@@ -50,155 +52,646 @@ namespace Tetris
             }
         }
 
+        private void TestDisplayShape(Button[,] btnGrid, int x, int y)
+        {
+            btnGrid[x, y].BackColor = Color.Red;
+        }
+
+        private void TestClearShape(Button[,] btnGrid, int x, int y)
+        {
+            btnGrid[x, y].BackColor = Color.White;
+        }
+
+        private void FrmTetris_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyValue == (char)Keys.D && xPos < 9)
+            {
+                TestClearShape(btnGrid, xPos, yPos);
+                xPos = xPos + 1;
+                lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
+                TestDisplayShape(btnGrid, xPos, yPos);
+            }
+            if (e.KeyValue == (char)Keys.A && xPos > 0)
+            {
+                TestClearShape(btnGrid, xPos, yPos);
+                xPos = xPos - 1;
+                lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
+                TestDisplayShape(btnGrid, xPos, yPos);
+            }
+            if (e.KeyValue == (char)Keys.R)
+            {
+                RotateShape();
+            }
+        }
+
+        private void RotateShape()
+        {
+            switch (currentShape)
+            {
+                case "Z":
+                    ClearZBlock(btnGrid, xPos, yPos);
+                    break;
+                case "S":
+                    ClearSBlock(btnGrid, xPos, yPos);
+                    break;
+                case "T":
+                    ClearTBlock(btnGrid, xPos, yPos);
+                    break;
+                case "Line":
+                    ClearLine(btnGrid, xPos, yPos);
+                    break;
+                case "L":
+                    ClearLBlock(btnGrid, xPos, yPos);
+                    break;
+                case "J":
+                    ClearJBlock(btnGrid, xPos, yPos);
+                    break;
+            }
+
+            if (rotation != 3)
+            {
+                rotation++;
+            } else {
+                rotation = 0;
+            }
+
+            switch (currentShape)
+            {
+                case "Z":
+                    ZBlock(btnGrid, xPos, yPos);
+                    break;
+                case "S":
+                    SBlock(btnGrid, xPos, yPos);
+                    break;
+                case "T":
+                    TBlock(btnGrid, xPos, yPos);
+                    break;
+                case "Line":
+                    Line(btnGrid, xPos, yPos);
+                    break;
+                case "L":
+                    LBlock(btnGrid, xPos, yPos);
+                    break;
+                case "J":
+                    JBlock(btnGrid, xPos, yPos);
+                    break;
+            }
+        }
+
+        private void DropTimer_Tick(object sender, EventArgs e)
+        {
+            if (yPos < 19)
+            {
+                TestClearShape(btnGrid, xPos, yPos);
+                yPos = yPos + 1;
+                lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
+                TestDisplayShape(btnGrid, xPos, yPos);
+            }
+        }
+
         private void Block(Button[,] btnGrid, int x, int y)
         {
             btnGrid[x, y].BackColor = Color.Red;
-            btnGrid[x+1, y].BackColor = Color.Red;
-            btnGrid[x, y+1].BackColor = Color.Red;
-            btnGrid[x+1, y+1].BackColor = Color.Red;
+            btnGrid[x + 1, y].BackColor = Color.Red;
+            btnGrid[x, y + 1].BackColor = Color.Red;
+            btnGrid[x + 1, y + 1].BackColor = Color.Red;
 
         }
 
         private void ClearBlock(Button[,] btnGrid, int x, int y)
         {
             btnGrid[x, y].BackColor = Color.White;
-            btnGrid[x+1, y].BackColor = Color.White;
-            btnGrid[x, y+1].BackColor = Color.White;
-            btnGrid[x+1, y+1].BackColor = Color.White;
+            btnGrid[x + 1, y].BackColor = Color.White;
+            btnGrid[x, y + 1].BackColor = Color.White;
+            btnGrid[x + 1, y + 1].BackColor = Color.White;
 
         }
 
         private void Line(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.Cyan;
-            btnGrid[x+1, y].BackColor = Color.Cyan;
-            btnGrid[x+2, y].BackColor = Color.Cyan;
 
+            switch (rotation)
+            {
+                case 0: //horizontal
+                    btnGrid[x, y].BackColor = Color.Cyan;
+                    btnGrid[x + 1, y].BackColor = Color.Cyan;
+                    btnGrid[x - 1, y].BackColor = Color.Cyan;
+                    break;
+                case 1: //vertical
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Cyan;
+                        btnGrid[x, y - 1].BackColor = Color.Cyan;
+                        btnGrid[x, y + 1].BackColor = Color.Cyan;
+                    }
+                    break;
+                case 2: //horizontal
+                    btnGrid[x, y].BackColor = Color.Cyan;
+                    btnGrid[x + 1, y].BackColor = Color.Cyan;
+                    btnGrid[x - 1, y].BackColor = Color.Cyan;
+                    break;
+                case 3: //vertical
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Cyan;
+                        btnGrid[x, y - 1].BackColor = Color.Cyan;
+                        btnGrid[x, y + 1].BackColor = Color.Cyan;
+                    }
+                    break;
+            }
         }
 
         private void ClearLine(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.White;
-            btnGrid[x+1, y].BackColor = Color.White;
-            btnGrid[x+2, y].BackColor = Color.White;
-           
+
+            switch (rotation)
+            {
+                case 0: //horizontal
+                    btnGrid[x, y].BackColor = Color.White;
+                    btnGrid[x + 1, y].BackColor = Color.White;
+                    btnGrid[x - 1, y].BackColor = Color.White;
+                    break;
+                case 1: //vertical
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                    }
+                    break;
+                case 2: //horizontal
+                    btnGrid[x, y].BackColor = Color.White;
+                    btnGrid[x + 1, y].BackColor = Color.White;
+                    btnGrid[x - 1, y].BackColor = Color.White;
+                    break;
+                case 3: //vertical
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                    }
+                    break;
+            }
         }
 
-         private void JBlock(Button[,] btnGrid, int x, int y)
+        private void JBlock(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.Blue;
-            btnGrid[x+1, y].BackColor = Color.Blue;
-            btnGrid[x+2, y].BackColor = Color.Blue;
-            btnGrid[x+2, y+1].BackColor = Color.Blue;
 
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.Blue;
+                    btnGrid[x - 1, y].BackColor = Color.Blue;
+                    btnGrid[x + 1, y].BackColor = Color.Blue;
+                    btnGrid[x + 1, y + 1].BackColor = Color.Blue;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Blue;
+                        btnGrid[x , y - 1].BackColor = Color.Blue;
+                        btnGrid[x, y + 1].BackColor = Color.Blue;
+                        btnGrid[x - 1, y + 1].BackColor = Color.Blue;
+                    }
+                    break;
+                case 2:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Blue;
+                        btnGrid[x - 1, y - 1].BackColor = Color.Blue;
+                        btnGrid[x - 1, y].BackColor = Color.Blue;
+                        btnGrid[x + 1, y].BackColor = Color.Blue;
+                    }
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Blue;
+                        btnGrid[x, y - 1].BackColor = Color.Blue;
+                        btnGrid[x + 1, y - 1].BackColor = Color.Blue;
+                        btnGrid[x, y + 1].BackColor = Color.Blue;
+                    }
+                    break;
+            }
         }
 
         private void ClearJBlock(Button[,] btnGrid, int x, int y)
         {
-             btnGrid[x, y].BackColor = Color.White;
-            btnGrid[x+1, y].BackColor = Color.White;
-            btnGrid[x+2, y].BackColor = Color.White;
-            btnGrid[x+2, y+1].BackColor = Color.White;
-           
+
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.White;
+                    btnGrid[x - 1, y].BackColor = Color.White;
+                    btnGrid[x + 1, y].BackColor = Color.White;
+                    btnGrid[x + 1, y + 1].BackColor = Color.White;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                        btnGrid[x - 1, y + 1].BackColor = Color.White;
+                    }
+                    break;
+                case 2:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x - 1, y - 1].BackColor = Color.White;
+                        btnGrid[x - 1, y].BackColor = Color.White;
+                        btnGrid[x + 1, y].BackColor = Color.White;
+                    }
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x + 1, y - 1].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                    }
+                    break;
+            }
         }
 
         private void LBlock(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.Orange;
-            btnGrid[x+1, y].BackColor = Color.Orange;
-            btnGrid[x+2, y].BackColor = Color.Orange;
-            btnGrid[x, y+1].BackColor = Color.Orange;
 
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.Orange;
+                    btnGrid[x + 1, y].BackColor = Color.Orange;
+                    btnGrid[x - 1, y].BackColor = Color.Orange;
+                    btnGrid[x - 1, y + 1].BackColor = Color.Orange;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Orange;
+                        btnGrid[x, y - 1].BackColor = Color.Orange;
+                        btnGrid[x, y + 1].BackColor = Color.Orange;
+                        btnGrid[x + 1, y + 1].BackColor = Color.Orange;
+                    }
+                    break;
+                case 2:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Orange;
+                        btnGrid[x - 1, y].BackColor = Color.Orange;
+                        btnGrid[x + 1, y].BackColor = Color.Orange;
+                        btnGrid[x + 1, y - 1].BackColor = Color.Orange;
+                    }
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Orange;
+                        btnGrid[x, y + 1].BackColor = Color.Orange;
+                        btnGrid[x, y - 1].BackColor = Color.Orange;
+                        btnGrid[x - 1, y - 1].BackColor = Color.Orange;
+                    }
+                    break;
+            }
         }
 
         private void ClearLBlock(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.White;
-            btnGrid[x+1, y].BackColor = Color.White;
-            btnGrid[x+2, y].BackColor = Color.White;
-            btnGrid[x, y+1].BackColor = Color.White;
-           
+
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.White;
+                    btnGrid[x + 1, y].BackColor = Color.White;
+                    btnGrid[x - 1, y].BackColor = Color.White;
+                    btnGrid[x - 1, y + 1].BackColor = Color.White;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                        btnGrid[x + 1, y + 1].BackColor = Color.White;
+                    }
+                    break;
+                case 2:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x - 1, y].BackColor = Color.White;
+                        btnGrid[x + 1, y].BackColor = Color.White;
+                        btnGrid[x + 1, y - 1].BackColor = Color.White;
+                    }
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x - 1, y - 1].BackColor = Color.White;
+                    }
+                    break;
+            }
         }
 
 
         private void SBlock(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.Green;
-            btnGrid[x, y+1].BackColor = Color.Green;
-            btnGrid[x+1, y].BackColor = Color.Green;
-            btnGrid[x-1, y+1].BackColor = Color.Green;
+
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.Green;
+                    btnGrid[x, y + 1].BackColor = Color.Green;
+                    btnGrid[x + 1, y].BackColor = Color.Green;
+                    btnGrid[x - 1, y + 1].BackColor = Color.Green;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Green;
+                        btnGrid[x - 1, y - 1].BackColor = Color.Green;
+                        btnGrid[x - 1, y].BackColor = Color.Green;
+                        btnGrid[x, y + 1].BackColor = Color.Green;
+                    }
+                    break;
+                case 2:
+                    btnGrid[x, y].BackColor = Color.Green;
+                    btnGrid[x, y + 1].BackColor = Color.Green;
+                    btnGrid[x + 1, y].BackColor = Color.Green;
+                    btnGrid[x - 1, y + 1].BackColor = Color.Green;
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Green;
+                        btnGrid[x - 1, y - 1].BackColor = Color.Green;
+                        btnGrid[x - 1, y].BackColor = Color.Green;
+                        btnGrid[x, y + 1].BackColor = Color.Green;
+                    }
+                    break;
+            }
         }
 
         private void ClearSBlock(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.White;
-            btnGrid[x, y+1].BackColor = Color.White;
-            btnGrid[x+1, y].BackColor = Color.White;
-            btnGrid[x-1, y+1].BackColor = Color.White;
+
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.White;
+                    btnGrid[x, y + 1].BackColor = Color.White;
+                    btnGrid[x + 1, y].BackColor = Color.White;
+                    btnGrid[x - 1, y + 1].BackColor = Color.White;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x - 1, y - 1].BackColor = Color.White;
+                        btnGrid[x - 1, y].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                    }
+                    break;
+                case 2:
+                    btnGrid[x, y].BackColor = Color.White;
+                    btnGrid[x, y + 1].BackColor = Color.White;
+                    btnGrid[x + 1, y].BackColor = Color.White;
+                    btnGrid[x - 1, y + 1].BackColor = Color.White;
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x - 1, y - 1].BackColor = Color.White;
+                        btnGrid[x - 1, y].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                    }
+                    break;
+            }
         }
 
-         private void TBlock(Button[,] btnGrid, int x, int y)
+        private void TBlock(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.Purple;
-            btnGrid[x+1, y].BackColor = Color.Purple;
-            btnGrid[x-1, y].BackColor = Color.Purple;
-            btnGrid[x, y+1].BackColor = Color.Purple;
+
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.Purple;
+                    btnGrid[x + 1, y].BackColor = Color.Purple;
+                    btnGrid[x - 1, y].BackColor = Color.Purple;
+                    btnGrid[x, y + 1].BackColor = Color.Purple;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Purple;
+                        btnGrid[x - 1, y].BackColor = Color.Purple;
+                        btnGrid[x, y - 1].BackColor = Color.Purple;
+                        btnGrid[x, y + 1].BackColor = Color.Purple;
+                    }
+                    break;
+                case 2:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Purple;
+                        btnGrid[x + 1, y].BackColor = Color.Purple;
+                        btnGrid[x - 1, y].BackColor = Color.Purple;
+                        btnGrid[x, y - 1].BackColor = Color.Purple;
+                    }
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Purple;
+                        btnGrid[x + 1, y].BackColor = Color.Purple;
+                        btnGrid[x, y - 1].BackColor = Color.Purple;
+                        btnGrid[x, y + 1].BackColor = Color.Purple;
+                    }
+                    break;
+            }
         }
 
         private void ClearTBlock(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.White;
-            btnGrid[x+1, y].BackColor = Color.White;
-            btnGrid[x-1, y].BackColor = Color.White;
-            btnGrid[x, y+1].BackColor = Color.White;
-        }
 
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.White;
+                    btnGrid[x + 1, y].BackColor = Color.White;
+                    btnGrid[x - 1, y].BackColor = Color.White;
+                    btnGrid[x, y + 1].BackColor = Color.White;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x - 1, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                    }
+                    break;
+                case 2:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x + 1, y].BackColor = Color.White;
+                        btnGrid[x - 1, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                    }
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x + 1, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                    }
+                    break;
+            }
+        }
 
         private void ZBlock(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.Yellow;
-            btnGrid[x, y+1].BackColor = Color.Yellow;
-            btnGrid[x-1, y].BackColor = Color.Yellow;
-            btnGrid[x+1, y+1].BackColor = Color.Yellow;
+
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.Yellow;
+                    btnGrid[x, y + 1].BackColor = Color.Yellow;
+                    btnGrid[x - 1, y].BackColor = Color.Yellow;
+                    btnGrid[x + 1, y + 1].BackColor = Color.Yellow;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Yellow;
+                        btnGrid[x, y - 1].BackColor = Color.Yellow;
+                        btnGrid[x - 1, y].BackColor = Color.Yellow;
+                        btnGrid[x - 1, y + 1].BackColor = Color.Yellow;
+                    }
+                    break;
+                case 2:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Yellow;
+                        btnGrid[x, y + 1].BackColor = Color.Yellow;
+                        btnGrid[x - 1, y].BackColor = Color.Yellow;
+                        btnGrid[x + 1, y + 1].BackColor = Color.Yellow;
+                    }
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.Yellow;
+                        btnGrid[x, y - 1].BackColor = Color.Yellow;
+                        btnGrid[x - 1, y].BackColor = Color.Yellow;
+                        btnGrid[x - 1, y + 1].BackColor = Color.Yellow;
+                    }
+                    break;
+            }
         }
 
         private void ClearZBlock(Button[,] btnGrid, int x, int y)
         {
-            btnGrid[x, y].BackColor = Color.White;
-            btnGrid[x, y+1].BackColor = Color.White;
-            btnGrid[x-1, y].BackColor = Color.White;
-            btnGrid[x+1, y+1].BackColor = Color.White;
+
+            switch (rotation)
+            {
+                case 0:
+                    btnGrid[x, y].BackColor = Color.White;
+                    btnGrid[x, y + 1].BackColor = Color.White;
+                    btnGrid[x - 1, y].BackColor = Color.White;
+                    btnGrid[x + 1, y + 1].BackColor = Color.White;
+                    break;
+                case 1:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x - 1, y].BackColor = Color.White;
+                        btnGrid[x - 1, y + 1].BackColor = Color.White;
+                    }
+                    break;
+                case 2:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x, y + 1].BackColor = Color.White;
+                        btnGrid[x - 1, y].BackColor = Color.White;
+                        btnGrid[x + 1, y + 1].BackColor = Color.White;
+                    }
+                    break;
+                case 3:
+                    if (y > 0) //if shape can rotate 
+                    {
+                        btnGrid[x, y].BackColor = Color.White;
+                        btnGrid[x, y - 1].BackColor = Color.White;
+                        btnGrid[x - 1, y].BackColor = Color.White;
+                        btnGrid[x - 1, y + 1].BackColor = Color.White;
+                    }
+                    break;
+            }
         }
 
 
 
-        private void FrmTetris_KeyDown(object sender, KeyEventArgs e)
+
+
+
+        //UNFINISHED
+
+        private void CheckForLines(Button[,] btnGrid)
         {
-            if (e.KeyValue == (char)Keys.D && xPos < 8)
+            for (int i = 19; i > 1; i--)
             {
-                ClearTBlock(btnGrid, xPos, yPos);
-                xPos = xPos + 1;
-                lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
-                TBlock(btnGrid, xPos, yPos);
-            }
-            if (e.KeyValue == (char)Keys.A && xPos > 0)
-            {
-                ClearTBlock(btnGrid, xPos, yPos);
-                xPos = xPos - 1;
-                lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
-                TBlock(btnGrid, xPos, yPos);
+                int counter = 0;
+                for (int j = 0; j < 9; j++)
+                {
+                    if (btnGrid[j,i].BackColor != Color.White)
+                    {
+                        counter++;
+                    }
+                }
+                if (counter == 10)
+                {
+                    ClearLine(btnGrid, i);
+                }
             }
         }
 
-        private void DropTimer_Tick(object sender, EventArgs e)
+        private void ClearLine(Button[,] btnGrid, int line)
         {
-            if (yPos < 18)
+            for (int i = line; i > 0; i--)
             {
-                ClearTBlock(btnGrid, xPos, yPos);
-                yPos = yPos + 1;
-                lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
-                TBlock(btnGrid, xPos, yPos);
+                for (int j = 0; j < 9; j++)
+                {
+                    btnGrid[j, i].BackColor = btnGrid[j, i - 1].BackColor;
+                }
+                i--;
             }
         }
+
+        private void TestLineClear(Button[,] btnGrid)
+        {
+            DropTimer.Enabled = false;
+            for (int y = 0; y < 20; y++)
+            {
+                for (int x = 0; x < 9; x++)
+                {
+                    btnGrid[x, y].BackColor = Color.Red;
+                }
+            }
+            btnGrid[9, 10].BackColor = Color.Green;
+
+            CheckForLines(btnGrid);
+        }
+
     }
 }
