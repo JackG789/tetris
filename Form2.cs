@@ -12,11 +12,12 @@ namespace Tetris
 {
     public partial class FrmTetris : Form
     {
-        private int xPos;
-        private int yPos;
+        private int xPos, yPos;
         private string currentShape;
         private int rotation;
-        
+        private int xLimitLeft, xLimitRight, yLimit;
+        Random rnd = new Random();
+
         Button[,] btnGrid = new Button[10, 20];
 
         public FrmTetris()
@@ -27,11 +28,9 @@ namespace Tetris
         private void FrmTetris_Load(object sender, EventArgs e)
         {
             DisplayGrid(btnGrid);
-            xPos = 4;
-            yPos = 10; //changed to test shape rotation, should be 0
-            rotation = 0;
+            NewShape();
             lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
-            //DropTimer.Enabled = true;
+            DropTimer.Enabled = true;
         }
 
         private void DisplayGrid(Button[,] btnGrid)
@@ -52,39 +51,55 @@ namespace Tetris
             }
         }
 
-        private void TestDisplayShape(Button[,] btnGrid, int x, int y)
-        {
-            btnGrid[x, y].BackColor = Color.Red;
-        }
-
-        private void TestClearShape(Button[,] btnGrid, int x, int y)
-        {
-            btnGrid[x, y].BackColor = Color.White;
-        }
-
         private void FrmTetris_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyValue == (char)Keys.D && xPos < 9)
+            if (e.KeyValue == (char)Keys.D && xPos < xLimitRight)
             {
-                TestClearShape(btnGrid, xPos, yPos);
+                ClearCurrentShape();
                 xPos = xPos + 1;
                 lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
-                TestDisplayShape(btnGrid, xPos, yPos);
+                DisplayCurrentShape();
             }
-            if (e.KeyValue == (char)Keys.A && xPos > 0)
+            if (e.KeyValue == (char)Keys.A && xPos > xLimitLeft)
             {
-                TestClearShape(btnGrid, xPos, yPos);
+                ClearCurrentShape();
                 xPos = xPos - 1;
                 lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
-                TestDisplayShape(btnGrid, xPos, yPos);
+                DisplayCurrentShape();
             }
             if (e.KeyValue == (char)Keys.R)
             {
                 RotateShape();
             }
         }
-
-        private void RotateShape()
+        private void DisplayCurrentShape()
+        {
+            switch (currentShape)
+            {
+                case "Z":
+                    ZBlock(btnGrid, xPos, yPos);
+                    break;
+                case "S":
+                    SBlock(btnGrid, xPos, yPos);
+                    break;
+                case "T":
+                    TBlock(btnGrid, xPos, yPos);
+                    break;
+                case "Line":
+                    Line(btnGrid, xPos, yPos);
+                    break;
+                case "L":
+                    LBlock(btnGrid, xPos, yPos);
+                    break;
+                case "J":
+                    JBlock(btnGrid, xPos, yPos);
+                    break;
+                case "Block":
+                    Block(btnGrid, xPos, yPos);
+                    break;
+            }
+        }
+        private void ClearCurrentShape()
         {
             switch (currentShape)
             {
@@ -106,47 +121,74 @@ namespace Tetris
                 case "J":
                     ClearJBlock(btnGrid, xPos, yPos);
                     break;
+                case "Block":
+                    ClearBlock(btnGrid, xPos, yPos);
+                    break;
             }
-
-            if (rotation != 3)
+        }
+        private void RotateShape()
+        {
+            if (currentShape != "Block")
             {
-                rotation++;
-            } else {
-                rotation = 0;
-            }
+                ClearCurrentShape();
 
-            switch (currentShape)
-            {
-                case "Z":
-                    ZBlock(btnGrid, xPos, yPos);
-                    break;
-                case "S":
-                    SBlock(btnGrid, xPos, yPos);
-                    break;
-                case "T":
-                    TBlock(btnGrid, xPos, yPos);
-                    break;
-                case "Line":
-                    Line(btnGrid, xPos, yPos);
-                    break;
-                case "L":
-                    LBlock(btnGrid, xPos, yPos);
-                    break;
-                case "J":
-                    JBlock(btnGrid, xPos, yPos);
-                    break;
+                if (rotation != 3)
+                {
+                    rotation++;
+                }
+                else
+                {
+                    rotation = 0;
+                }
+
+                DisplayCurrentShape();
             }
         }
 
         private void DropTimer_Tick(object sender, EventArgs e)
         {
-            if (yPos < 19)
+            if (yPos < yLimit)
             {
-                TestClearShape(btnGrid, xPos, yPos);
+                ClearCurrentShape();
                 yPos = yPos + 1;
                 lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
-                TestDisplayShape(btnGrid, xPos, yPos);
+                DisplayCurrentShape();
+            } else
+            {
+                NewShape();
             }
+        }
+        private void NewShape()
+        {
+            xPos = 4;
+            yPos = 0;
+            rotation = 0;
+            int newShape = rnd.Next(0, 6);
+            switch (newShape)
+            {
+                case 0:
+                    currentShape = "Z";
+                    break;
+                case 1:
+                    currentShape = "S";
+                    break;
+                case 2:
+                    currentShape = "T";
+                    break;
+                case 3:
+                    currentShape = "Line";
+                    break;
+                case 4:
+                    currentShape = "L";
+                    break;
+                case 5:
+                    currentShape = "J";
+                    break;
+                case 6:
+                    currentShape = "Block";
+                    break;
+            }
+            DisplayCurrentShape();
         }
 
         private void Block(Button[,] btnGrid, int x, int y)
@@ -156,6 +198,10 @@ namespace Tetris
             btnGrid[x, y + 1].BackColor = Color.Red;
             btnGrid[x + 1, y + 1].BackColor = Color.Red;
 
+            currentShape = "Block";
+            xLimitLeft = 0;
+            xLimitRight = 8;
+            yLimit = 18;
         }
 
         private void ClearBlock(Button[,] btnGrid, int x, int y)
@@ -176,6 +222,11 @@ namespace Tetris
                     btnGrid[x, y].BackColor = Color.Cyan;
                     btnGrid[x + 1, y].BackColor = Color.Cyan;
                     btnGrid[x - 1, y].BackColor = Color.Cyan;
+
+                    currentShape = "Line";
+                    xLimitLeft = 1;
+                    xLimitRight = 8;
+                    yLimit = 19;
                     break;
                 case 1: //vertical
                     if (y > 0) //if shape can rotate 
@@ -183,12 +234,22 @@ namespace Tetris
                         btnGrid[x, y].BackColor = Color.Cyan;
                         btnGrid[x, y - 1].BackColor = Color.Cyan;
                         btnGrid[x, y + 1].BackColor = Color.Cyan;
+
+                        currentShape = "Line";
+                        xLimitLeft = 0;
+                        xLimitRight = 9;
+                        yLimit = 18;
                     }
                     break;
                 case 2: //horizontal
                     btnGrid[x, y].BackColor = Color.Cyan;
                     btnGrid[x + 1, y].BackColor = Color.Cyan;
                     btnGrid[x - 1, y].BackColor = Color.Cyan;
+
+                    currentShape = "Line";
+                    xLimitLeft = 1;
+                    xLimitRight = 8;
+                    yLimit = 19;
                     break;
                 case 3: //vertical
                     if (y > 0) //if shape can rotate 
@@ -196,6 +257,11 @@ namespace Tetris
                         btnGrid[x, y].BackColor = Color.Cyan;
                         btnGrid[x, y - 1].BackColor = Color.Cyan;
                         btnGrid[x, y + 1].BackColor = Color.Cyan;
+
+                        currentShape = "Line";
+                        xLimitLeft = 0;
+                        xLimitRight = 9;
+                        yLimit = 18;
                     }
                     break;
             }
@@ -245,6 +311,11 @@ namespace Tetris
                     btnGrid[x - 1, y].BackColor = Color.Blue;
                     btnGrid[x + 1, y].BackColor = Color.Blue;
                     btnGrid[x + 1, y + 1].BackColor = Color.Blue;
+
+                    currentShape = "J";
+                    xLimitLeft = 1;
+                    xLimitRight = 8;
+                    yLimit = 18;
                     break;
                 case 1:
                     if (y > 0) //if shape can rotate 
@@ -253,6 +324,11 @@ namespace Tetris
                         btnGrid[x , y - 1].BackColor = Color.Blue;
                         btnGrid[x, y + 1].BackColor = Color.Blue;
                         btnGrid[x - 1, y + 1].BackColor = Color.Blue;
+
+                        currentShape = "J";
+                        xLimitLeft = 1;
+                        xLimitRight = 9;
+                        yLimit = 18;
                     }
                     break;
                 case 2:
@@ -262,6 +338,11 @@ namespace Tetris
                         btnGrid[x - 1, y - 1].BackColor = Color.Blue;
                         btnGrid[x - 1, y].BackColor = Color.Blue;
                         btnGrid[x + 1, y].BackColor = Color.Blue;
+
+                        currentShape = "J";
+                        xLimitLeft = 1;
+                        xLimitRight = 8;
+                        yLimit = 19;
                     }
                     break;
                 case 3:
@@ -271,6 +352,11 @@ namespace Tetris
                         btnGrid[x, y - 1].BackColor = Color.Blue;
                         btnGrid[x + 1, y - 1].BackColor = Color.Blue;
                         btnGrid[x, y + 1].BackColor = Color.Blue;
+
+                        currentShape = "J";
+                        xLimitLeft = 0;
+                        xLimitRight = 8;
+                        yLimit = 18;
                     }
                     break;
             }
@@ -327,6 +413,11 @@ namespace Tetris
                     btnGrid[x + 1, y].BackColor = Color.Orange;
                     btnGrid[x - 1, y].BackColor = Color.Orange;
                     btnGrid[x - 1, y + 1].BackColor = Color.Orange;
+
+                    currentShape = "L";
+                    xLimitLeft = 1;
+                    xLimitRight = 8;
+                    yLimit = 18;
                     break;
                 case 1:
                     if (y > 0) //if shape can rotate 
@@ -335,6 +426,11 @@ namespace Tetris
                         btnGrid[x, y - 1].BackColor = Color.Orange;
                         btnGrid[x, y + 1].BackColor = Color.Orange;
                         btnGrid[x + 1, y + 1].BackColor = Color.Orange;
+
+                        currentShape = "L";
+                        xLimitLeft = 0;
+                        xLimitRight = 8;
+                        yLimit = 18;
                     }
                     break;
                 case 2:
@@ -344,6 +440,11 @@ namespace Tetris
                         btnGrid[x - 1, y].BackColor = Color.Orange;
                         btnGrid[x + 1, y].BackColor = Color.Orange;
                         btnGrid[x + 1, y - 1].BackColor = Color.Orange;
+
+                        currentShape = "L";
+                        xLimitLeft = 1;
+                        xLimitRight = 8;
+                        yLimit = 19;
                     }
                     break;
                 case 3:
@@ -353,6 +454,11 @@ namespace Tetris
                         btnGrid[x, y + 1].BackColor = Color.Orange;
                         btnGrid[x, y - 1].BackColor = Color.Orange;
                         btnGrid[x - 1, y - 1].BackColor = Color.Orange;
+
+                        currentShape = "L";
+                        xLimitLeft = 1;
+                        xLimitRight = 9;
+                        yLimit = 18;
                     }
                     break;
             }
@@ -410,6 +516,11 @@ namespace Tetris
                     btnGrid[x, y + 1].BackColor = Color.Green;
                     btnGrid[x + 1, y].BackColor = Color.Green;
                     btnGrid[x - 1, y + 1].BackColor = Color.Green;
+
+                    currentShape = "S";
+                    xLimitLeft = 1;
+                    xLimitRight = 8;
+                    yLimit = 18;
                     break;
                 case 1:
                     if (y > 0) //if shape can rotate 
@@ -418,6 +529,11 @@ namespace Tetris
                         btnGrid[x - 1, y - 1].BackColor = Color.Green;
                         btnGrid[x - 1, y].BackColor = Color.Green;
                         btnGrid[x, y + 1].BackColor = Color.Green;
+
+                        currentShape = "S";
+                        xLimitLeft = 1;
+                        xLimitRight = 9;
+                        yLimit = 18;
                     }
                     break;
                 case 2:
@@ -425,6 +541,11 @@ namespace Tetris
                     btnGrid[x, y + 1].BackColor = Color.Green;
                     btnGrid[x + 1, y].BackColor = Color.Green;
                     btnGrid[x - 1, y + 1].BackColor = Color.Green;
+
+                    currentShape = "S";
+                    xLimitLeft = 1;
+                    xLimitRight = 8;
+                    yLimit = 18;
                     break;
                 case 3:
                     if (y > 0) //if shape can rotate 
@@ -433,6 +554,11 @@ namespace Tetris
                         btnGrid[x - 1, y - 1].BackColor = Color.Green;
                         btnGrid[x - 1, y].BackColor = Color.Green;
                         btnGrid[x, y + 1].BackColor = Color.Green;
+
+                        currentShape = "S";
+                        xLimitLeft = 1;
+                        xLimitRight = 9;
+                        yLimit = 18;
                     }
                     break;
             }
@@ -486,6 +612,11 @@ namespace Tetris
                     btnGrid[x + 1, y].BackColor = Color.Purple;
                     btnGrid[x - 1, y].BackColor = Color.Purple;
                     btnGrid[x, y + 1].BackColor = Color.Purple;
+
+                    currentShape = "T";
+                    xLimitLeft = 1;
+                    xLimitRight = 8;
+                    yLimit = 18;
                     break;
                 case 1:
                     if (y > 0) //if shape can rotate 
@@ -494,6 +625,11 @@ namespace Tetris
                         btnGrid[x - 1, y].BackColor = Color.Purple;
                         btnGrid[x, y - 1].BackColor = Color.Purple;
                         btnGrid[x, y + 1].BackColor = Color.Purple;
+
+                        currentShape = "T";
+                        xLimitLeft = 1;
+                        xLimitRight = 9;
+                        yLimit = 18;
                     }
                     break;
                 case 2:
@@ -503,6 +639,11 @@ namespace Tetris
                         btnGrid[x + 1, y].BackColor = Color.Purple;
                         btnGrid[x - 1, y].BackColor = Color.Purple;
                         btnGrid[x, y - 1].BackColor = Color.Purple;
+
+                        currentShape = "T";
+                        xLimitLeft = 1;
+                        xLimitRight = 8;
+                        yLimit = 19;
                     }
                     break;
                 case 3:
@@ -512,6 +653,11 @@ namespace Tetris
                         btnGrid[x + 1, y].BackColor = Color.Purple;
                         btnGrid[x, y - 1].BackColor = Color.Purple;
                         btnGrid[x, y + 1].BackColor = Color.Purple;
+
+                        currentShape = "T";
+                        xLimitLeft = 0;
+                        xLimitRight = 8;
+                        yLimit = 18;
                     }
                     break;
             }
@@ -568,6 +714,11 @@ namespace Tetris
                     btnGrid[x, y + 1].BackColor = Color.Yellow;
                     btnGrid[x - 1, y].BackColor = Color.Yellow;
                     btnGrid[x + 1, y + 1].BackColor = Color.Yellow;
+
+                    currentShape = "Z";
+                    xLimitLeft = 1;
+                    xLimitRight = 8;
+                    yLimit = 18;
                     break;
                 case 1:
                     if (y > 0) //if shape can rotate 
@@ -576,6 +727,11 @@ namespace Tetris
                         btnGrid[x, y - 1].BackColor = Color.Yellow;
                         btnGrid[x - 1, y].BackColor = Color.Yellow;
                         btnGrid[x - 1, y + 1].BackColor = Color.Yellow;
+
+                        currentShape = "Z";
+                        xLimitLeft = 1;
+                        xLimitRight = 9;
+                        yLimit = 18;
                     }
                     break;
                 case 2:
@@ -585,6 +741,11 @@ namespace Tetris
                         btnGrid[x, y + 1].BackColor = Color.Yellow;
                         btnGrid[x - 1, y].BackColor = Color.Yellow;
                         btnGrid[x + 1, y + 1].BackColor = Color.Yellow;
+
+                        currentShape = "Z";
+                        xLimitLeft = 1;
+                        xLimitRight = 8;
+                        yLimit = 18;
                     }
                     break;
                 case 3:
@@ -594,6 +755,11 @@ namespace Tetris
                         btnGrid[x, y - 1].BackColor = Color.Yellow;
                         btnGrid[x - 1, y].BackColor = Color.Yellow;
                         btnGrid[x - 1, y + 1].BackColor = Color.Yellow;
+
+                        currentShape = "Z";
+                        xLimitLeft = 1;
+                        xLimitRight = 9;
+                        yLimit = 18;
                     }
                     break;
             }
@@ -695,3 +861,4 @@ namespace Tetris
 
     }
 }
+
