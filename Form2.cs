@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Media;
 
 namespace Tetris
 {
@@ -20,15 +21,20 @@ namespace Tetris
 
         Button[,] btnGrid = new Button[10, 20];
 
+        System.Media.SoundPlayer music = new System.Media.SoundPlayer();
+
         public FrmTetris()
         {
             InitializeComponent();
+            music.SoundLocation = "Tetris.wav";
         }
 
         private void FrmTetris_Load(object sender, EventArgs e)
         {
+            music.Play();
             DisplayGrid(btnGrid);
             NewShape();
+            //TestLineClear(btnGrid);
             lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
             DropTimer.Enabled = true;
         }
@@ -131,7 +137,6 @@ namespace Tetris
             if (currentShape != "Block")
             {
                 ClearCurrentShape();
-
                 if (rotation != 3)
                 {
                     rotation++;
@@ -140,18 +145,230 @@ namespace Tetris
                 {
                     rotation = 0;
                 }
-
                 DisplayCurrentShape();
             }
         }
 
+        private Boolean CheckCollision()
+        {
+            if (currentShape == "Z")
+            {
+                if (rotation == 0)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos + 1, yPos + 2].BackColor == Color.White && btnGrid[xPos - 1, yPos].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 1)
+                {
+                    if (btnGrid[xPos - 1, yPos + 2].BackColor == Color.White && btnGrid[xPos, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 2)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos + 1, yPos + 2].BackColor == Color.White && btnGrid[xPos - 1, yPos].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 3)
+                {
+                    if (btnGrid[xPos - 1, yPos + 2].BackColor == Color.White && btnGrid[xPos, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+
+                }
+            }
+
+            if (currentShape == "T")
+            {
+                if (rotation == 0)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos - 1, yPos + 1].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 1)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos - 1, yPos].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 2)
+                {
+                    if (btnGrid[xPos, yPos + 1].BackColor == Color.White && btnGrid[xPos - 1, yPos + 1].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+
+                if (rotation == 3)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            if (currentShape == "S")
+            {
+                if (rotation == 0)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White && btnGrid[xPos - 1, yPos + 2].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 1)
+                {
+                    if (btnGrid[xPos - 1, yPos + 1].BackColor == Color.White && btnGrid[xPos, yPos + 2].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 2)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White && btnGrid[xPos - 1, yPos + 2].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 3)
+                {
+                    if (btnGrid[xPos - 1, yPos + 1].BackColor == Color.White && btnGrid[xPos, yPos + 2].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+
+                }
+
+
+            }
+
+            if (currentShape == "L")
+            {
+                if (rotation == 0)
+                {
+                    if (btnGrid[xPos, yPos + 1].BackColor == Color.White && btnGrid[xPos - 1, yPos + 2].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 1)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos - 1, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 2)
+                {
+                    if (btnGrid[xPos, yPos + 1].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White && btnGrid[xPos - 1, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 3)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos + 1, yPos + 2].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+
+                }
+            }
+
+            if (currentShape == "J")
+            {
+                if (rotation == 0)
+                {
+                    if (btnGrid[xPos - 1, yPos + 1].BackColor == Color.White && btnGrid[xPos, yPos + 1].BackColor == Color.White && btnGrid[xPos + 1, yPos + 2].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 1)
+                {
+                    if (btnGrid[xPos - 1, yPos + 2].BackColor == Color.White && btnGrid[xPos, yPos + 2].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 2)
+                {
+                    if (btnGrid[xPos, yPos + 1].BackColor == Color.White && btnGrid[xPos - 1, yPos + 1].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 3)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos + 1, yPos].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+
+                }
+            }
+
+            if (currentShape == "Line")
+            {
+                if (rotation == 0)
+                {
+                    if (btnGrid[xPos - 1, yPos + 1].BackColor == Color.White && btnGrid[xPos, yPos + 1].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 1)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 2)
+                {
+                    if (btnGrid[xPos - 1, yPos + 1].BackColor == Color.White && btnGrid[xPos, yPos + 1].BackColor == Color.White && btnGrid[xPos + 1, yPos + 1].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+                }
+                if (rotation == 3)
+                {
+                    if (btnGrid[xPos, yPos + 2].BackColor == Color.White)
+                    {
+                        return true;
+                    }
+
+                }
+            }
+
+            if (currentShape == "Block")
+            {
+                if (btnGrid[xPos, yPos + 2].BackColor == Color.White && btnGrid[xPos + 1, yPos + 2].BackColor == Color.White)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private void DropTimer_Tick(object sender, EventArgs e)
         {
-            if (yPos < yLimit)
+            if (yPos < yLimit && CheckCollision() == true)
             {
                 ClearCurrentShape();
                 yPos = yPos + 1;
-                lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos);
+                lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos); //display xy on form
                 DisplayCurrentShape();
             } else
             {
@@ -806,6 +1023,11 @@ namespace Tetris
             }
         }
 
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            music.Play();
+        }
+
 
 
 
@@ -818,7 +1040,7 @@ namespace Tetris
             for (int i = 19; i > 1; i--)
             {
                 int counter = 0;
-                for (int j = 0; j < 9; j++)
+                for (int j = 0; j < 10; j++)
                 {
                     if (btnGrid[j,i].BackColor != Color.White)
                     {
@@ -828,37 +1050,74 @@ namespace Tetris
                 if (counter == 10)
                 {
                     ClearLine(btnGrid, i);
+                    for (int l = 0; l < 10; l++)
+                    {
+                        btnGrid[l, 0].BackColor = Color.White;
+                    }
                 }
             }
         }
 
         private void ClearLine(Button[,] btnGrid, int line)
         {
+            for (int i = 0; i < 10; i++)
+            {
+                btnGrid[i, line].BackColor = Color.White;
+            }
+
+            for (int j = line-1; j > 0; j--)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    Color above = btnGrid[i, line - 1].BackColor;
+                    btnGrid[i, line].BackColor = above;
+                }
+            }
+
+            
+
+
+
+
+
+
+
+            /*
             for (int i = line; i > 0; i--)
             {
-                for (int j = 0; j < 9; j++)
+                for (int j = 0; j < 10; j++)
                 {
                     btnGrid[j, i].BackColor = btnGrid[j, i - 1].BackColor;
                 }
                 i--;
             }
+            for (int j = 0; j < 10; j++)
+            {
+                btnGrid[j, 0].BackColor = Color.White;
+            }
+            CheckForLines(btnGrid);
+            */
         }
 
         private void TestLineClear(Button[,] btnGrid)
         {
             DropTimer.Enabled = false;
-            for (int y = 0; y < 20; y++)
+            for (int y = 0; y < 19;  y = y + 2)
             {
                 for (int x = 0; x < 9; x++)
                 {
                     btnGrid[x, y].BackColor = Color.Red;
+                    btnGrid[x, y+1].BackColor = Color.Yellow;
                 }
             }
             btnGrid[9, 10].BackColor = Color.Green;
+            btnGrid[9, 15].BackColor = Color.Green;
+            //btnGrid[9, 5].BackColor = Color.Green;
 
             CheckForLines(btnGrid);
         }
 
     }
 }
+
 
