@@ -1,0 +1,33 @@
+private void IncreaseScore(){
+
+    lblCurrentScore.Caption = lblCurrentScore + 50;
+
+     if(lbl.CurrentScore.Caption <=400){
+        DropTimer_Tick = 500;
+
+    } 
+
+     if(lbl.CurrentScore.Caption <=600){
+        DropTimer_Tick = 400;
+
+    }
+
+     if(lbl.CurrentScore.Caption <=800){
+        DropTimer_Tick = 300;
+
+    }
+     if(lbl.CurrentScore.Caption <=1000){
+        DropTimer_Tick = 250;
+
+    }
+     if(lbl.CurrentScore.Caption <=1200){
+        DropTimer_Tick = 200;
+
+    }
+     if(lbl.CurrentScore.Caption <=1400){
+        DropTimer_Tick = 100;
+
+    }
+
+
+}
