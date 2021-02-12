@@ -1,0 +1,18 @@
+  private void DropTimer_Tick(object sender, EventArgs e)
+        {
+            if (yPos < yLimit && CheckCollision() == true)
+            {
+                ClearCurrentShape();
+                yPos = yPos + 1;
+                lblXY.Text = Convert.ToString(xPos) + "," + Convert.ToString(yPos); //display xy on form
+                DisplayCurrentShape();
+            }
+            //if(CheckCollision() == false && yPos == 0)
+            //{
+             //   MessageBox.Show("score :"&& lblCurrentScore);
+            //}
+            else
+            {
+                NewShape();
+            }
+        }
